@@ -11,14 +11,7 @@ class MemeService:
         self.db = MongoDB()
 
     def get_random_meme(self):
-        # return {
-        #     "id": "181913649",
-        #     "name": "Drake Hotline Bling",
-        #     "url": "https://i.imgflip.com/26am.jpg",
-        #     "width": 1200,
-        #     "height": 1200,
-        #     "box_count": 2
-        # }
+
         try:
             # Try to get memes from cache
             memes = self.db.get_meme_templates()

@@ -1,100 +1,72 @@
 import base64
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
+from typing import  Dict, List
 import io
 import requests
-from typing import List, Dict, Tuple
+from .text_styler import TextStyler
 
-def encode_image(image_bytes):
-    return base64.b64encode(image_bytes.getvalue()).decode('utf-8')
+class ImageProcessor:
+    def __init__(self):
+        self.styler = TextStyler()
 
-def download_image(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        return io.BytesIO(response.content)
-    raise Exception("Failed to download image")
+    def encode_image(self, image_bytes):
+        return base64.b64encode(image_bytes.getvalue()).decode('utf-8')
 
-def scale_coordinates(
-    point: Tuple[int, int], 
-    original_dims: Tuple[int, int], 
-    processed_dims: Tuple[int, int] = (512, 512)
-) -> Tuple[int, int]:
-    """Scale coordinates from processed dimensions back to original dimensions."""
-    scale_x = original_dims[0] / processed_dims[0]
-    scale_y = original_dims[1] / processed_dims[1]
-    
-    return (
-        int(point[0] * scale_x),
-        int(point[1] * scale_y)
-    )
 
-def scale_positions(
-    positions: List[Dict], 
-    original_dims: Tuple[int, int],
-    processed_dims: Tuple[int, int] = (512, 512)
-) -> List[Dict]:
-    """Scale all text positions and font sizes to match original image dimensions."""
-    scaled_positions = []
-    scale_factor = min(
-        original_dims[0] / processed_dims[0],
-        original_dims[1] / processed_dims[1]
-    )
-    
-    for pos in positions:
-        scaled_x, scaled_y = scale_coordinates(
-            (pos['x'], pos['y']),
-            original_dims,
-            processed_dims
-        )
-        
-        scaled_font_size = int(pos['font_size'] * scale_factor)
-        
-        scaled_positions.append({
-            'x': scaled_x,
-            'y': scaled_y,
-            'font_size': scaled_font_size,
-            'text': pos['text']
-        })
-    
-    return scaled_positions
+    def download_image(self, url: str) -> io.BytesIO:
+        """
+        Download image from the provided URL.
+        """
+        response = requests.get(url)
+        if response.status_code == 200:
+            return io.BytesIO(response.content)
+        raise Exception(f"Failed to download image from {url}")
 
-def generate_meme_from_image(image_bytes, text_positions):
-    print("Generating meme...")
-    img = Image.open(image_bytes)
-    original_dims = img.size
-    
-    # Scale positions to match original image dimensions
-    scaled_positions = scale_positions(text_positions, original_dims)
-    
-    draw = ImageDraw.Draw(img)
-    
-    for position in scaled_positions:
-        try:
-            font = ImageFont.truetype("arial.ttf", position['font_size'])
-        except OSError:
-            # Fallback to default font if arial.ttf is not available
-            font = ImageFont.load_default()
-            
-        # Get text size for centering
-        text_bbox = draw.textbbox(
-            (position['x'], position['y']),
-            position['text'],
-            font=font
-        )
-        text_width = text_bbox[2] - text_bbox[0]
-        
-        # Center text horizontally around the x coordinate
-        x = position['x'] - (text_width // 2)
-        
-        draw.text(
-            (x, position['y']),
-            position['text'],
-            font=font,
-            fill='white',
-            stroke_width=2,
-            stroke_fill='black'
-        )
-    
-    output = io.BytesIO()
-    img.save(output, format='JPEG')
-    output.seek(0)
-    return output
+    def generate_meme_from_text_boxes(self, image_bytes: io.BytesIO, text_boxes: List[Dict]) -> io.BytesIO:
+        """
+        Generate meme by placing text within specified bounding boxes.
+        """
+        # Open the original image
+        img = Image.open(image_bytes).convert('RGBA')
+        original_width, original_height = img.size
+
+        # Create a transparent overlay for text
+        text_overlay = Image.new('RGBA', img.size, (0, 0, 0, 0))
+        draw = ImageDraw.Draw(text_overlay)
+
+        for box in text_boxes:
+            # Adjust bounding box coordinates based on original image size
+            scale_x = original_width / 512
+            scale_y = original_height / 512
+            adjusted_box = {
+                "x": int(box['x'] * scale_x),
+                "y": int(box['y'] * scale_y),
+                "width": int(box['width'] * scale_x),
+                "height": int(box['height'] * scale_y),
+                "text": box['text'],
+                "font_size": int(box['font_size'] * min(scale_x, scale_y)),
+                "color": box['color'],
+                "style": box['style']
+            }
+
+            # Create text layer for each box
+            text_layer = self.styler.create_text_layer(
+                image_size=img.size,
+                text_box=adjusted_box
+            )
+
+            # Composite the text layer onto the overlay
+            text_overlay = Image.alpha_composite(text_overlay, text_layer)
+
+        # Composite the text overlay onto the original image
+        final_img = Image.alpha_composite(img, text_overlay)
+
+        # Convert to RGB for JPEG
+        final_img = final_img.convert('RGB')
+
+        # Save to buffer
+        output = io.BytesIO()
+        final_img.save(output, format='JPEG', quality=95)
+        output.seek(0)
+        return output
+

@@ -35,3 +35,13 @@ class MemeResponse(BaseModel):
     url: str
     presigned_url: str
     expiry_date: str
+
+class TextBox(BaseModel):
+    x: int
+    y: int
+    width: int
+    height: int
+    text: str
+    font_size: int
+    color: str  # HEX color
+    style: str  # 'default', 'bold', 'comic', 'gradient'

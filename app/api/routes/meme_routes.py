@@ -3,7 +3,7 @@ from ..models.schemas import MemeRequest, MemeResponse, ApiKey
 from ...services.meme_service import MemeService
 from ...services.openai_service import OpenAIService
 from ...services.s3_service import S3Service
-from ...utils.image_utils import download_image, generate_meme_from_image
+from ...utils.image_utils import ImageProcessor
 from ...core.security import get_api_key, require_permissions
 import os
 from typing import Annotated
@@ -20,12 +20,13 @@ async def generate_meme(
         meme_service = MemeService()
         openai_service = OpenAIService()
         s3_service = S3Service()
+        img_processor = ImageProcessor()
 
         # Get random meme template
         meme_template = meme_service.get_random_meme()
         
         # Download the template
-        image_bytes = download_image(meme_template['url'])
+        image_bytes = img_processor.download_image(meme_template['url'])
         
         # Add image dimension, name and box count to the context
         context = (
@@ -43,7 +44,7 @@ async def generate_meme(
         # print('AI Analysis:', analysis)
 
         # Generate new meme
-        new_meme = generate_meme_from_image(image_bytes, analysis['text_positions'])
+        new_meme = img_processor.generate_meme_from_text_boxes(image_bytes, analysis['text_boxes'])
         # ================Test the image================
         # test the image .. comment out later
         # Ensure the /images directory exists

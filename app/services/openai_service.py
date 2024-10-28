@@ -1,7 +1,7 @@
 from openai import AzureOpenAI
 import json
 from ..config.settings import get_settings
-from ..utils.image_utils import encode_image
+from ..utils.image_utils import ImageProcessor
 from ..utils.prompts import SYSTEM_PROMPT, generate_user_prompt  # Adjust the import path as needed
 
 settings = get_settings()
@@ -15,31 +15,13 @@ class OpenAIService:
         )
 
     def analyze_image(self, image_bytes, query, context):
-        # Uncomment the test response if needed for debugging
-        # test_res = '''{
-        # "text_positions": [
-        #     {
-        #         "x": 100,
-        #         "y": 100,
-        #         "font_size": 24,
-        #         "text": "When you finally understand"
-        #     },
-        #     {
-        #         "x": 100,
-        #         "y": 200,
-        #         "font_size": 24,
-        #         "text": "the plot twist in your favorite show"
-        #     }
-        # ]
-        # }'''
-        # parsed_res = json.loads(test_res)
-        # return parsed_res
-
-        base64_image = encode_image(image_bytes)
+        img_processor = ImageProcessor()
+        base64_image = img_processor.encode_image(image_bytes)
         
         user_prompt = generate_user_prompt(context, query)
         
-        # print('User Prompt', user_prompt)
+        # print('User
+        #  Prompt', user_prompt)
 
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",

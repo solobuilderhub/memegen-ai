@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     rate_limit_calls: int = 100  # calls per window
     rate_limit_window: int = 3600
 
-     # Add Coolify specific settings
+     # Add Coolify specific settings. For prod deployment
     source_commit: str | None = None
     coolify_url: str | None = None
     coolify_fqdn: str | None = None
@@ -25,6 +25,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        # extra = "allow" # Allow extra fields in .env file for future expansion
 
 @lru_cache()
 def get_settings():
