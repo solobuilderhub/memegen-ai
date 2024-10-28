@@ -14,6 +14,15 @@ class Settings(BaseSettings):
     rate_limit_calls: int = 100  # calls per window
     rate_limit_window: int = 3600
 
+     # Add Coolify specific settings
+    source_commit: str | None = None
+    coolify_url: str | None = None
+    coolify_fqdn: str | None = None
+    coolify_branch: str | None = None
+    coolify_container_name: str | None = None
+    port: str | None = None
+    host: str | None = None
+
     class Config:
         env_file = ".env"
 
