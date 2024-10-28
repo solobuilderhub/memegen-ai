@@ -4,6 +4,8 @@ pip install fastapi[standard] - For running fastapi command from cml.
 
 e.g.: fastapi dev app/main.py
 
+Prod: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
 ### Resources:
 
 pip install --upgrade setuptools
@@ -29,5 +31,7 @@ From your project's root directory (where setup.py is located), run:
 
 pip install -e .
 
-api_key:
+#sample api_key can be generated with open ssl e.g.:
 671e5e626f0af498e29c36e2.y7XjvzldmzWU8r0EfaKteAfeUzLwml6l
+
+pip freeze | Out-File -FilePath requirements.txt -Encoding utf8
