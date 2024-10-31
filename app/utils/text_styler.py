@@ -1,11 +1,11 @@
 from PIL import Image, ImageDraw, ImageFont
 from typing import Tuple, Dict
-from .font_utils import ensure_font
+
 
 class TextStyler:
     def __init__(self):
         # Ensure the font is downloaded and get its path
-        self.font_path = ensure_font("Anton-Regular.ttf")  # Using Anton as a free alternative
+        self.font_path = "Anton-Regular.ttf"  # Using Anton as a free alternative
     
     def create_text_layer(self, image_size: Tuple[int, int], text_box: Dict) -> Image.Image:
         """
@@ -137,7 +137,7 @@ class TextStyler:
         """
         try:
             # Ensure a comic font is downloaded and available
-            comic_font_path = ensure_font("Comic-Regular.ttf")
+            comic_font_path = "Comic-Regular.ttf"
             return ImageFont.truetype(comic_font_path, font_size)
         except IOError:
             # Fallback to default font

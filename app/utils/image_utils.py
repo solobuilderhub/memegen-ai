@@ -5,15 +5,18 @@ import io
 import requests
 from .text_styler import TextStyler
 
+
 class ImageProcessor:
     def __init__(self):
         self.styler = TextStyler()
 
-    def encode_image(self, image_bytes):
+    @staticmethod
+    def encode_image(image_bytes: io.BytesIO) -> str:
+        """Encode image bytes to a base64 string."""
         return base64.b64encode(image_bytes.getvalue()).decode('utf-8')
 
-
-    def download_image(self, url: str) -> io.BytesIO:
+    @staticmethod
+    def download_image(url: str) -> io.BytesIO:
         """
         Download image from the provided URL.
         """
@@ -21,6 +24,7 @@ class ImageProcessor:
         if response.status_code == 200:
             return io.BytesIO(response.content)
         raise Exception(f"Failed to download image from {url}")
+    
 
     def generate_meme_from_text_boxes(self, image_bytes: io.BytesIO, text_boxes: List[Dict]) -> io.BytesIO:
         """

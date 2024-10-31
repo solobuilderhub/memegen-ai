@@ -31,6 +31,7 @@ limits==3.13.0
 markdown-it-py==3.0.0
 MarkupSafe==3.0.2
 mdurl==0.1.2
+motor==3.6.0
 openai==1.52.2
 packaging==24.1
 passlib==1.7.4
@@ -42,7 +43,7 @@ pydantic==2.9.2
 pydantic-settings==2.6.0
 pydantic_core==2.23.4
 Pygments==2.18.0
-pymongo==4.10.1
+pymongo==4.9.2
 pytest==8.3.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1

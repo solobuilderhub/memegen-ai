@@ -45,3 +45,37 @@ class TextBox(BaseModel):
     font_size: int
     color: str  # HEX color
     style: str  # 'default', 'bold', 'comic', 'gradient'
+
+## meme template schemas
+class Font(BaseModel):
+    size_range: str
+
+
+class Annotation(BaseModel):
+    name: str
+    x: int
+    y: int
+    width: int
+    height: int
+    padding: int
+    font: Font
+
+class Source(BaseModel):
+    name: str
+    url: str
+    width: int
+    height: int
+    box_count: int
+
+class MemeTemplate(BaseModel):
+    src: Source
+    annotations: List[Annotation]
+
+class MemeTemplateResponse(BaseModel):
+    id: str
+    src: Source
+    annotations: List[Annotation]
+
+class MemeTemplateUpdate(BaseModel):
+    src: Optional[Source] = None
+    annotations: Optional[List[Annotation]] = None

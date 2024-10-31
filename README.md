@@ -1,12 +1,17 @@
 ## Commands
 
 pip install fastapi[standard] - For running fastapi command from cml.
+pip freeze | Out-File -FilePath requirements.txt -Encoding utf8
 
 e.g.: fastapi dev app/main.py
 
 Prod: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-pip freeze | Out-File -FilePath requirements.txt -Encoding utf8
+## Faster processing in prod with uvloop event:
+
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --loop uvloop --http httptools
+
+we can also add multiple worker(threads) for more cpu usage by setting worker parmeter in uvicorn.
 
 ### Resources:
 
